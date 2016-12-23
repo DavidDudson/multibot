@@ -16,6 +16,8 @@ updateOptions := updateOptions.value.withCachedResolution(true).withLatestSnapsh
 
 publishArtifact in(Compile, packageDoc) := false
 
+herokuAppName in Compile := "metabot1"
+
 enablePlugins(JavaAppPackaging)
 
 scalaVersion := "2.11.8"
