@@ -1,1 +1,1 @@
-worker: target/universal/stage/bin/multibot
+worker: sbt run
