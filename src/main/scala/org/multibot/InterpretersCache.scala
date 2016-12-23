@@ -38,13 +38,9 @@ case class InterpretersCache(preload: List[String]) {
       settings.deprecation.value = true
       settings.feature.value = false
       settings.Yreploutdir.value = ""
-      settings.YpartialUnification.value = true
       val si = new IMain(settings)
 
-      val imports = List(
-        "scalaz._", "Scalaz._", "reflect.runtime.universe.reify", "org.scalacheck.Prop._", "scala.concurrent.ExecutionContext.Implicits.global"
-//        , "effectful._"
-      )
+      val imports = List("scala.meta._")
       si.beQuietDuring {
         imports.foreach(i => si.interpret(s"import $i"))
       }
