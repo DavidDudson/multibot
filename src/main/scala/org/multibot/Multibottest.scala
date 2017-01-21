@@ -6,7 +6,7 @@ object Multibottest {
     val gitterPass = Option(System getenv "MULTIBOT_GITTER_PASS").getOrElse("this isn't a password")
     Multibot(cache = cache,
       botname = "metabot",
-      channels = List("#Elysium", "scalameta/scalameta"),
+      channels = List("MetaElysium/MetabotTestRoom", "scalameta/scalameta"),
       settings = _.setServerHostname("irc.gitter.im").setServerPassword(gitterPass).
         setSocketFactory(javax.net.ssl.SSLSocketFactory.getDefault)
     ).start()
