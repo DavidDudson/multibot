@@ -29,9 +29,8 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.10",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-  "org.http4s" %% "http4s-client" % "0.15.0a",
-  "org.json4s" %% "json4s-native" % "3.5.0",
-  "com.google.guava" % "guava" % "18.0"
+  "org.http4s" %% "http4s-client" % "0.15.3a",
+  "org.http4s" %% "http4s-json4s-native" % "0.15.3"
 )
 
 autoCompilerPlugins := true
