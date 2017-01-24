@@ -37,9 +37,7 @@ case class Multibot(cache: InterpretersCache, botname: String, channels: List[St
       def sendLines(channel: String, message: String) = {
         println(message)
 
-        message
-            .replace("\r", "")
-            .replace("`", "\'")
+        OutputSanitizer(message)
             .split("\n")
             .filter(_.nonEmpty)
             .take(NUMLINES)
