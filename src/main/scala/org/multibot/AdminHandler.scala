@@ -10,7 +10,7 @@ case class AdminHandler(BOTMSG: String, ADMINS: List[String], joinChannel: Strin
     }
 
     case "@bot" | "@bots" => sendLines(msg.channel, ":)")
-    case "@help" => sendLines(msg.channel, "(!) scala (!reset|type|scalex), (i>) idris, (,) clojure, (>>) haskell, (^) python, (&) javascript, (##) groovy, (%) ruby url: https://github.com/DavidDudson/multibot")
+    case "@help" => sendLines(msg.channel, "! 1 + 1 , url: https://github.com/DavidDudson/multibot")
 
     case _ =>
   }

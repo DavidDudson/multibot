@@ -18,7 +18,6 @@ case class Multibot(cache: InterpretersCache, botname: String, channels: List[St
   val NUMLINES = 5
   val LAMBDABOT = "lambdabot"
   val ADMINS = List("DavidDudson", "xeno-by", "olafurpg", "Dviem")
-  val httpHandler = HttpHandler()
   def start() {
     new Thread() {
       override def run(): Unit = bot.startBot()
@@ -53,7 +52,7 @@ case class Multibot(cache: InterpretersCache, botname: String, channels: List[St
 
 
       }
-      def interpreters = InterpretersHandler(cache, httpHandler, sendLines)
+      def interpreters = InterpretersHandler(cache, sendLines)
       def admin = AdminHandler(e.getBot.getNick + ":", ADMINS, _ => (), _ => (), sendLines) //todo
       DieOn.error {
         val msg = Msg(channel, sender, e.getMessage)
