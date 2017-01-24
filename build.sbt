@@ -29,7 +29,7 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.10",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-  "org.http4s" %% "http4s-client" % "0.15.3a",
+  "com.typesafe.play" % "play-ws" % "2.5.11",
   "org.http4s" %% "http4s-json4s-native" % "0.15.3"
 )
 
