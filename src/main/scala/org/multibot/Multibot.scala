@@ -37,14 +37,12 @@ case class Multibot(cache: InterpretersCache, botname: String, channels: List[St
       def sendLines(channel: String, message: String) = {
         println(message)
 
-        val shortMessage = message
+        message
             .replace("\r", "")
             .replace("`", "\'")
             .split("\n")
             .filter(_.nonEmpty)
             .take(NUMLINES)
-
-        shortMessage
             .map(m => s"```$m```")
             .foreach(m => {
               if (channel == sender) e.respond(m)
