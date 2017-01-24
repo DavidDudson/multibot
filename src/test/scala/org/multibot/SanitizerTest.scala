@@ -38,5 +38,7 @@ class SanitizerTest extends FlatSpec {
     ensureSanitizedOutput(
       "`I```Am``Trying``To``Ruin`````This``Bots```Day",
       "'I'''Am''Trying''To''Ruin'''''This''Bots'''Day")
+
+    ensureSanitizedOutput("String = foo", "String = \"foo\"")
   }
 }
