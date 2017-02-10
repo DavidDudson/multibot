@@ -1,4 +1,4 @@
-package org.multibot
+package org.multibot.irc
 
 import java.io.{File, FilePermission}
 import java.net.NetPermission

@@ -1,8 +1,9 @@
-package org.multibot
+package org.multibot.irc
 
 import java.io.{ByteArrayOutputStream, PrintStream}
 
 import com.google.common.cache._
+import ScriptSecurityManager
 
 case class InterpretersCache(preload: List[String]) {
   private val stdOut = System.out

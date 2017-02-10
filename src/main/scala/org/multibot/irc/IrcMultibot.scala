@@ -1,7 +1,8 @@
-package org.multibot
+package org.multibot.irc
 
 import java.nio.charset.Charset
 
+import org.multibot._
 import org.pircbotx.Configuration.Builder
 import org.pircbotx._
 import org.pircbotx.hooks.ListenerAdapter
@@ -13,8 +14,8 @@ object Cmd {
   def unapply(s: String) = if (s.contains(' ')) Some(s.split(" ", 2).toList) else None
 }
 
-case class Multibot(cache: InterpretersCache, botname: String, channels: List[String],
-                    settings: Builder[PircBotX] => Builder[PircBotX] = identity) {
+case class IrcMultibot(cache: InterpretersCache, botname: String, channels: List[String],
+                       settings: Builder[PircBotX] => Builder[PircBotX] = identity) {
   val NUMLINES = 5
   val LAMBDABOT = "lambdabot"
   val ADMINS = List("DavidDudson", "xeno-by", "olafurpg", "Dviem")

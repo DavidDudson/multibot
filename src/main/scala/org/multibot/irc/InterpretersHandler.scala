@@ -1,4 +1,4 @@
-package org.multibot
+package org.multibot.irc
 
 case class InterpretersHandler(cache: InterpretersCache, sendLines: (String, String) => Unit) {
   def serve(implicit msg: Msg): Unit = msg.message match {

@@ -1,4 +1,4 @@
-package org.multibot
+package org.multibot.irc
 
 import scala.concurrent.duration.Duration
 

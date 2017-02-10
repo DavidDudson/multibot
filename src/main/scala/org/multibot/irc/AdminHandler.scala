@@ -1,4 +1,4 @@
-package org.multibot
+package org.multibot.irc
 
 case class AdminHandler(BOTMSG: String, ADMINS: List[String], joinChannel: String => Unit, partChannel: String => Unit, sendLines: (String, String) => Unit) {
   def serve(implicit msg: Msg): Unit = msg.message match {
