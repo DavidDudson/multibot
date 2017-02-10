@@ -1,11 +1,4 @@
-package org.multibot
-
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import play.api.libs.ws._
-import play.api.libs.ws.ahc.AhcWSClient
-
-import scala.concurrent.Future
+package org.multibot.http
 object GitterHttpClient {
 
   implicit val system = ActorSystem()
