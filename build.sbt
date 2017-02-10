@@ -23,7 +23,8 @@ enablePlugins(JavaAppPackaging)
 
 scalaVersion := "2.11.8"
 
-libraryDependencies += "org.scalameta" %% "scalameta" % "1.6.0-595"
+libraryDependencies += "org.scalameta" %% "scalameta" % "1.6.0-654"
+libraryDependencies += "org.scalameta" %% "contrib" % "1.6.0-654"
 
 libraryDependencies ++= Seq(
   "org.pircbotx" % "pircbotx" % "2.0.1",
