@@ -15,6 +15,7 @@ mainClass in Compile := Some("org.multibot.Multibottest")
 updateOptions := updateOptions.value.withCachedResolution(true).withLatestSnapshots(false)
 
 publishArtifact in(Compile, packageDoc) := false
+resolvers += Resolver.bintrayIvyRepo("scalameta", "maven")
 
 herokuAppName in Compile := "metabot1"
 
@@ -22,7 +23,7 @@ enablePlugins(JavaAppPackaging)
 
 scalaVersion := "2.11.8"
 
-libraryDependencies += "org.scalameta" %% "scalameta" % "1.4.0"
+libraryDependencies += "org.scalameta" %% "scalameta" % "1.6.0-595"
 
 libraryDependencies ++= Seq(
   "org.pircbotx" % "pircbotx" % "2.0.1",
