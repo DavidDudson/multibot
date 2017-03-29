@@ -6,9 +6,9 @@ object Sanitizer {
     val sanitized = out.replace("`", "\'").trim
     if (out.startsWith("String = ")) {
       val string = sanitized.stripPrefix("String = ")
-      "```scala\nString = \"" + string + "\"\n```"
+      "```\nString = \"" + string + "\"\n```"
     } else {
-      "```scala\n" + sanitized + "\n```"
+      "```\n" + sanitized + "\n```"
     }
   }
 
