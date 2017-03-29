@@ -16,6 +16,7 @@ updateOptions := updateOptions.value.withCachedResolution(true).withLatestSnapsh
 
 publishArtifact in(Compile, packageDoc) := false
 resolvers += Resolver.bintrayIvyRepo("scalameta", "maven")
+resolvers += Resolver.jcenterRepo
 
 herokuAppName in Compile := "metabot1"
 
@@ -23,11 +24,14 @@ enablePlugins(JavaAppPackaging)
 
 scalaVersion := "2.11.8"
 
+dependencyOverrides += "com.squareup.okio" % "okio" % "1.11.0"
+
 libraryDependencies += "org.scalameta" %% "scalameta" % "1.6.0-654"
 libraryDependencies += "org.scalameta" %% "contrib" % "1.6.0-654"
 
 libraryDependencies ++= Seq(
-  "org.pircbotx" % "pircbotx" % "2.0.1",
+  "com.github.amatkivskiy" % "gitter.sdk.async" % "1.6.0",
+  "com.github.amatkivskiy" % "gitter.sdk.sync" % "1.6.0",
   "org.slf4j" % "slf4j-simple" % "1.7.10",
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
