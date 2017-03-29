@@ -73,6 +73,13 @@ case class GitterBot(cache: InterpretersCache) {
             val reponse = rest.sendMessage(id, Sanitizer.sanitizeOutput(output))
             recentMessageIdCache.put(messageId, reponse.id)
             println(s"sending $output")
+          case IntepretableMessage(input) if !isMessageIdInCache(messageId) && message.operation == "update" && rest.getRoomMessages(id).asScala.last.id == messageId =>
+            val output = interpret(input)
+            val reponse = rest.sendMessage(id, Sanitizer.sanitizeOutput(output))
+            recentMessageIdCache.put(messageId, reponse.id)
+            println(s"sending only because last message was this one. $output")
+          case IntepretableMessage(input) if !isMessageIdInCache(messageId) && message.operation == "update" =>
+            println(s"Message ignored because it is not the last message")
           case _ if isMessageIdInCache(messageId) && message.operation == "update" =>
             val oldId = recentMessageIdCache.getIfPresent(messageId)
             Option(oldId)
