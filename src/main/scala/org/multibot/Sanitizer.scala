@@ -7,7 +7,7 @@ object Sanitizer {
 
   def sanitizeInput(in: String): String = {
     val tripleBackquoted = "^```\\s*(.*?)\\s*```$".r
-    val scalaSyntaxBackquoted  = "^```scala\\s*(.*?)\\s*```$".r
+    val scalaSyntaxBackquoted  = "(?s)^```scala\\s*(.*)\\s*```$".r
     val singleBackquoted = "^`(.*)`$".r
 
     in match {
