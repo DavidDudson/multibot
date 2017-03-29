@@ -60,6 +60,10 @@ case class GitterBot(cache: InterpretersCache) {
         message.message.text match {
           case "ping" =>
             rest.sendMessage(id, "pong")
+          case PlainInterpretableMessage(input) =>
+            rest.updateMessage(id, messageId, Sanitizer.sanitizeOutput(input))
+            create(messageId, input)
+            println("Wrapping plain message")
           case IntepretableMessage(input) if isCreate(message) =>
             create(messageId, input)
           case IntepretableMessage(input) if isUpdateOfCommand(message, messageId) =>

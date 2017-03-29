@@ -11,6 +11,16 @@ object IntepretableMessage {
 }
 
 /**
+  * Implies that the message is not in a code block
+  */
+object PlainInterpretableMessage {
+  def unapply(input: String): Option[String] =
+    Option(input)
+      .filter(_.startsWith("! "))
+      .filter(s => Sanitizer.sanitizeInput(s) == s)
+}
+
+/**
   * Examples
   * `! foo`
   * ```! foo```
