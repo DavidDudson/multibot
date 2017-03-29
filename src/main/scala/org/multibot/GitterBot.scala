@@ -1,12 +1,14 @@
 package org.multibot
 
 import java.util
+import java.util.concurrent.TimeUnit
 
 import com.amatkivskiy.gitter.sdk.async.faye.client.{AsyncGitterFayeClient, AsyncGitterFayeClientBuilder}
 import com.amatkivskiy.gitter.sdk.async.faye.listeners.RoomMessagesChannel
 import com.amatkivskiy.gitter.sdk.async.faye.model.MessageEvent
 import com.amatkivskiy.gitter.sdk.model.response.message.MessageResponse
 import com.amatkivskiy.gitter.sdk.sync.client.SyncGitterApiClient
+import com.google.common.cache.{Cache, CacheBuilder}
 import okhttp3.OkHttpClient
 
 import scala.collection.JavaConverters._
@@ -14,6 +16,17 @@ import scala.collection.JavaConverters._
 case class GitterBot(cache: InterpretersCache) {
 
   private val accountToken = "5983838e1a4c54582fecdeb1bcbf69cb59888381"
+
+  /**
+    * Input => Output id cache
+    * We use this to keep a mapping of which messages we have replied to.
+    * This is so if they are updated we can update our response
+    */
+  private val recentMessageIdCache: Cache[String, String] =
+    CacheBuilder.newBuilder()
+      .maximumSize(100)
+      .expireAfterWrite(10, TimeUnit.MINUTES) // Same as gitter edit time
+      .build[String, String]()
 
   val rest: SyncGitterApiClient = new SyncGitterApiClient.Builder()
     .withAccountToken(accountToken)
@@ -37,6 +50,9 @@ case class GitterBot(cache: InterpretersCache) {
       override def onFailed(channel: String, ex: Exception): Unit =
         println(s"subscribeFailed to $ex")
 
+      def isMessageIdInCache(id: String): Boolean =
+        recentMessageIdCache.getIfPresent(id) != null
+
       @Override
       def onMessage(channel: String, message: MessageEvent) {
         val text = message.message.text
@@ -45,12 +61,19 @@ case class GitterBot(cache: InterpretersCache) {
         }
         println(s"message $text")
 
+        val messageId = message.message.id
         text match {
           case "ping" =>
             rest.sendMessage(id, "pong")
+          case IntepretableMessage(input) if isMessageIdInCache(messageId) =>
+            val output = interpret(input)
+            val oldId = recentMessageIdCache.getIfPresent(messageId)
+            val reponse = rest.updateMessage(id, oldId, Sanitizer.sanitizeOutput(output))
+            recentMessageIdCache.put(messageId, reponse.id)
           case IntepretableMessage(input) =>
             val output = interpret(input)
-            rest.sendMessage(id, output)
+            val reponse = rest.sendMessage(id, Sanitizer.sanitizeOutput(output))
+            recentMessageIdCache.put(messageId, reponse.id)
             println(s"sending $output")
           case _ =>
             println(s"ignored $text")
@@ -81,10 +104,6 @@ case class GitterBot(cache: InterpretersCache) {
         out
       }
     }
-  }
-
-  private def isInterpretMessage(text: String) = {
-    text.trim.startsWith("! ")
   }
 
   def start(): Unit = {
