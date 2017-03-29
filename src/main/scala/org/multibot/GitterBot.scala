@@ -45,7 +45,7 @@ case class GitterBot(cache: InterpretersCache) {
     faye.subscribe(new RoomMessagesChannel(id) {
 
       override def onSubscribed(channel: String, messagesSnapshot: util.List[MessageResponse]): Unit =
-        println("subscribed")
+        println(s"subscribed to $channel")
 
       override def onFailed(channel: String, ex: Exception): Unit =
         println(s"subscribeFailed to $ex")
@@ -56,25 +56,31 @@ case class GitterBot(cache: InterpretersCache) {
       @Override
       def onMessage(channel: String, message: MessageEvent) {
         val text = message.message.text
-        if (text == null) {
-          return
-        }
+        println(message.operation)
         println(s"message $text")
 
         val messageId = message.message.id
         text match {
           case "ping" =>
             rest.sendMessage(id, "pong")
-          case IntepretableMessage(input) if isMessageIdInCache(messageId) =>
+          case IntepretableMessage(input) if isMessageIdInCache(messageId) && message.operation == "update" =>
             val output = interpret(input)
             val oldId = recentMessageIdCache.getIfPresent(messageId)
             val reponse = rest.updateMessage(id, oldId, Sanitizer.sanitizeOutput(output))
             recentMessageIdCache.put(messageId, reponse.id)
-          case IntepretableMessage(input) =>
+          case IntepretableMessage(input) if message.operation == "create" =>
             val output = interpret(input)
             val reponse = rest.sendMessage(id, Sanitizer.sanitizeOutput(output))
             recentMessageIdCache.put(messageId, reponse.id)
             println(s"sending $output")
+          case _ if message.operation == "remove" =>
+            val oldId = recentMessageIdCache.getIfPresent(messageId)
+            Option(oldId)
+              .foreach {
+                rest.updateMessage(id, oldId, "")
+                recentMessageIdCache.invalidate
+              }
+            println("removing message")
           case _ =>
             println(s"ignored $text")
 
