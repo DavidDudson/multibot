@@ -42,6 +42,7 @@ case class GitterBot(cache: InterpretersCache) {
     .build()
 
   def connectToChannel(id: String): Unit = {
+
     faye.subscribe(new RoomMessagesChannel(id) {
 
       override def onSubscribed(channel: String, messagesSnapshot: util.List[MessageResponse]): Unit =
@@ -55,55 +56,49 @@ case class GitterBot(cache: InterpretersCache) {
 
       @Override
       def onMessage(channel: String, message: MessageEvent) {
-        val text = message.message.text
-        println(message.operation)
-        println(s"message $text")
-
         val messageId = message.message.id
-        text match {
+        message.message.text match {
           case "ping" =>
             rest.sendMessage(id, "pong")
-          case IntepretableMessage(input) if isMessageIdInCache(messageId) && message.operation == "update" =>
-            val output = interpret(input)
-            val oldId = recentMessageIdCache.getIfPresent(messageId)
-            val reponse = rest.updateMessage(id, oldId, Sanitizer.sanitizeOutput(output))
-            recentMessageIdCache.put(messageId, reponse.id)
-          case IntepretableMessage(input) if message.operation == "create" =>
-            val output = interpret(input)
-            val reponse = rest.sendMessage(id, Sanitizer.sanitizeOutput(output))
-            recentMessageIdCache.put(messageId, reponse.id)
-            println(s"sending $output")
-          case IntepretableMessage(input) if !isMessageIdInCache(messageId) && message.operation == "update" && rest.getRoomMessages(id).asScala.last.id == messageId =>
-            val output = interpret(input)
-            val reponse = rest.sendMessage(id, Sanitizer.sanitizeOutput(output))
-            recentMessageIdCache.put(messageId, reponse.id)
-            println(s"sending only because last message was this one. $output")
-          case IntepretableMessage(input) if !isMessageIdInCache(messageId) && message.operation == "update" =>
-            println(s"Message ignored because it is not the last message")
-          case _ if isMessageIdInCache(messageId) && message.operation == "update" =>
-            val oldId = recentMessageIdCache.getIfPresent(messageId)
-            Option(oldId)
-              .foreach {
-                rest.updateMessage(id, oldId, "")
-                recentMessageIdCache.invalidate
-              }
-            println("removing message because it was edited to a non-command")
-          case _ if message.operation == "remove" =>
-            val oldId = recentMessageIdCache.getIfPresent(messageId)
-            Option(oldId)
-              .foreach {
-                rest.updateMessage(id, oldId, "")
-                recentMessageIdCache.invalidate
-              }
-            println("removing message")
+          case IntepretableMessage(input) if isCreate(message) =>
+            create(messageId, input)
+          case IntepretableMessage(input) if isUpdateOfCommand(message, messageId) =>
+            update(messageId, input)
+          case IntepretableMessage(input) if isUpdateOfNonCommand(message, messageId) && isLastMessage(messageId) =>
+            update(messageId, input)
+          case _ if isUpdateOfCommand(message, messageId) =>
+            delete(messageId)
+          case _ if isRemove(message) =>
+            delete(messageId)
           case _ =>
-            println(s"ignored $text")
-
         }
       }
+
+      /**
+        * Means that the message was updated, and we have already interpreted it before
+        */
+      def isUpdateOfNonCommand(message: MessageEvent, messageId: String): Boolean =
+        !isMessageIdInCache(messageId) && message.operation == "update"
+
+
+      /**
+        * Means that the message was updated, and we have not interpreted it before
+        */
+      def isUpdateOfCommand(message: MessageEvent, messageId: String): Boolean =
+        isMessageIdInCache(messageId) && message.operation == "update"
+
+      def isCreate(message: MessageEvent): Boolean =
+        message.operation == "create"
+
+      private def isRemove(message: MessageEvent) =
+        message.operation == "remove"
+
+      /**
+        * Means that the message is the last message in the channel
+        */
+      def isLastMessage(messageId: String): Boolean =
+        rest.getRoomMessages(id).asScala.last.id == messageId
     })
-
-
 
     def interpret(s: String): String = {
       cache.scalaInterpreter(id) { (si, cout) =>
@@ -124,6 +119,26 @@ case class GitterBot(cache: InterpretersCache) {
 
         out
       }
+    }
+
+    def create(messageId: String, input: String) = {
+      val response = rest.sendMessage(id, Sanitizer.sanitizeOutput(interpret(input)))
+      recentMessageIdCache.put(messageId, response.id)
+    }
+
+    def delete(messageId: String) = {
+      val oldId = recentMessageIdCache.getIfPresent(messageId)
+      Option(oldId)
+        .foreach {
+          rest.updateMessage(id, oldId, "")
+          recentMessageIdCache.invalidate
+        }
+    }
+
+    def update(messageId: String, input: String) = {
+      val oldId = recentMessageIdCache.getIfPresent(messageId)
+      val reponse = rest.updateMessage(id, oldId, Sanitizer.sanitizeOutput(interpret(input)))
+      recentMessageIdCache.put(messageId, reponse.id)
     }
   }
 
