@@ -48,11 +48,15 @@ case class GitterBot(cache: InterpretersCache) {
           rest.sendMessage(id, "pong")
 
         if (text.trim.startsWith("! ")) {
-          val output = Sanitizer.sanitizeOutput(Sanitizer.sanitizeInput(interpret(text.drop(2))))
+          val output = Sanitizer.sanitizeOutput(interpret(Sanitizer.sanitizeInput(text.drop(2))))
+          rest.sendMessage(id, output)
+          println(s"sending $output")
+        } else if(Sanitizer.sanitizeInput(text.trim).trim.startsWith("! ")) {
+          val output = Sanitizer.sanitizeOutput(interpret(Sanitizer.sanitizeInput(text).trim.drop(2)))
           rest.sendMessage(id, output)
           println(s"sending $output")
         } else {
-          println(s"ignored $text")
+           println(s"ignored $text")
         }
       }
     })
