@@ -73,6 +73,14 @@ case class GitterBot(cache: InterpretersCache) {
             val reponse = rest.sendMessage(id, Sanitizer.sanitizeOutput(output))
             recentMessageIdCache.put(messageId, reponse.id)
             println(s"sending $output")
+          case _ if isMessageIdInCache(messageId) && message.operation == "update" =>
+            val oldId = recentMessageIdCache.getIfPresent(messageId)
+            Option(oldId)
+              .foreach {
+                rest.updateMessage(id, oldId, "")
+                recentMessageIdCache.invalidate
+              }
+            println("removing message because it was edited to a non-command")
           case _ if message.operation == "remove" =>
             val oldId = recentMessageIdCache.getIfPresent(messageId)
             Option(oldId)
