@@ -44,22 +44,22 @@ case class GitterBot(cache: InterpretersCache) {
           return
         }
         println(s"message $text")
-        if (text == "ping")
-          rest.sendMessage(id, "pong")
 
-        if (text.trim.startsWith("! ")) {
-          val output = Sanitizer.sanitizeOutput(interpret(Sanitizer.sanitizeInput(text.drop(2))))
-          rest.sendMessage(id, output)
-          println(s"sending $output")
-        } else if(Sanitizer.sanitizeInput(text.trim).trim.startsWith("! ")) {
-          val output = Sanitizer.sanitizeOutput(interpret(Sanitizer.sanitizeInput(text).trim.drop(2)))
-          rest.sendMessage(id, output)
-          println(s"sending $output")
-        } else {
-           println(s"ignored $text")
+        text match {
+          case "ping" =>
+            rest.sendMessage(id, "pong")
+          case IntepretableMessage(input) =>
+            val output = interpret(input)
+            rest.sendMessage(id, output)
+            println(s"sending $output")
+          case _ =>
+            println(s"ignored $text")
+
         }
       }
     })
+
+
 
     def interpret(s: String): String = {
       cache.scalaInterpreter(id) { (si, cout) =>
@@ -81,6 +81,10 @@ case class GitterBot(cache: InterpretersCache) {
         out
       }
     }
+  }
+
+  private def isInterpretMessage(text: String) = {
+    text.trim.startsWith("! ")
   }
 
   def start(): Unit = {
