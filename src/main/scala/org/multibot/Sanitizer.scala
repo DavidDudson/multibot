@@ -2,8 +2,15 @@ package org.multibot
 
 object Sanitizer {
 
-  def sanitizeOutput(out: String): String =
-    "```scala\n" + out.replace("`", "\'").trim + "\n```"
+  def sanitizeOutput(out: String): String = {
+    val sanitized = out.replace("`", "\'").trim
+    if (out.startsWith("String = ")) {
+      val string = sanitized.stripPrefix("String = ")
+      "```scala\nString = \"" + string + "\"\n```"
+    } else {
+      "```scala\n" + sanitized + "\n```"
+    }
+  }
 
   def sanitizeInput(in: String): String = {
     val tripleBackquoted = "^```\\s*(.*?)\\s*```$".r
