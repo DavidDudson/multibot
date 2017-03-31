@@ -4,12 +4,11 @@ object Sanitizer {
 
   def sanitizeOutput(out: String): String = {
     val sanitized = out.replace("`", "\'").trim
-    if (out.startsWith("String = ")) {
-      val string = sanitized.stripPrefix("String = ")
-      "```\nString = \"" + string + "\"\n```"
-    } else {
-      "```\n" + sanitized + "\n```"
-    }
+    val output = sanitized.split("\n")
+      .map(quoteString)
+      .mkString("\n")
+
+    s"```\n$output\n```"
   }
 
   def sanitizeInput(in: String): String = {
@@ -24,4 +23,12 @@ object Sanitizer {
       case s => s
     }
   }
+
+  val quoteString: Function[String, String] = {
+    case s if s.startsWith("String = ") =>
+      val stringBody = s.stripPrefix("String = ")
+      "String = \"" + stringBody + "\""
+    case s => s
+  }
 }
+

@@ -2,10 +2,13 @@ package org.multibot
 
 import org.scalatest.{Assertion, FlatSpec}
 
-class InputSanitizerTest extends FlatSpec {
+class SanitizerTest extends FlatSpec {
 
   def ensureSanitizedInput(in: String, expected: String): Assertion =
     assert(Sanitizer.sanitizeInput(in).trim === expected.trim)
+
+  def ensureSanitizedOutput(out: String, expected: String): Assertion =
+    assert(Sanitizer.sanitizeOutput(out).trim === expected.trim)
 
   def ensureNoSanitization(in: String) : Assertion =
     ensureSanitizedInput(in, in)
@@ -28,5 +31,27 @@ class InputSanitizerTest extends FlatSpec {
 
   it should "not be sanitized" in {
     ensureNoSanitization("foo")
+  }
+
+  "Outputs" should "be sanitized" in {
+    ensureSanitizedOutput("1", "```\n1\n```")
+    ensureSanitizedOutput("String = foo", "```\nString = \"foo\"\n```")
+    ensureSanitizedOutput(
+      """1
+        |String = foo""".stripMargin,
+      """```
+        |1
+        |String = "foo"
+        |```""".stripMargin)
+    ensureSanitizedOutput(
+      """String = foo
+        |1
+      """.stripMargin,
+      """```
+        |String = "foo"
+        |1
+        |```""".stripMargin)
+
+    ensureSanitizedOutput("\"I `really` like cats\"", "```\n\"I 'really' like cats\"\n```")
   }
 }
