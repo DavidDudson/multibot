@@ -7,15 +7,15 @@ import com.amatkivskiy.gitter.sdk.async.faye.client.{AsyncGitterFayeClient, Asyn
 import com.amatkivskiy.gitter.sdk.async.faye.listeners.RoomMessagesChannel
 import com.amatkivskiy.gitter.sdk.async.faye.model.MessageEvent
 import com.amatkivskiy.gitter.sdk.model.response.message.MessageResponse
+import com.amatkivskiy.gitter.sdk.model.response.room.RoomResponse
 import com.amatkivskiy.gitter.sdk.sync.client.SyncGitterApiClient
 import com.google.common.cache.{Cache, CacheBuilder}
 import okhttp3.OkHttpClient
 
 import scala.collection.JavaConverters._
 
-case class GitterBot(cache: InterpretersCache) {
+case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin: List[String]) {
 
-  private val accountToken = "5983838e1a4c54582fecdeb1bcbf69cb59888381"
 
   /**
     * Input => Output id cache
@@ -32,8 +32,6 @@ case class GitterBot(cache: InterpretersCache) {
     .withAccountToken(accountToken)
     .build()
 
-  val roomsToJoin: List[String] = "MetaElysium/MetabotTestRoom" :: "OlegYch/multibot" :: Nil
-
   val faye: AsyncGitterFayeClient = new AsyncGitterFayeClientBuilder()
     .withAccountToken(accountToken)
     .withFailListener(println)
@@ -46,7 +44,7 @@ case class GitterBot(cache: InterpretersCache) {
     faye.subscribe(new RoomMessagesChannel(id) {
 
       override def onSubscribed(channel: String, messagesSnapshot: util.List[MessageResponse]): Unit =
-        println(s"subscribed to $channel")
+        println(s"subscribed")
 
       override def onFailed(channel: String, ex: Exception): Unit =
         println(s"subscribeFailed to $ex")
@@ -61,9 +59,12 @@ case class GitterBot(cache: InterpretersCache) {
           case "ping" =>
             rest.sendMessage(id, "pong")
           case PlainInterpretableMessage(input) =>
-            rest.updateMessage(id, messageId, Sanitizer.sanitizeOutput(input))
+            if (rest.getCurrentUserRooms.contains((r: RoomResponse) => r.id == id)) {
+              println("Wrapping plain message")
+              rest.updateMessage(id, messageId, Sanitizer.sanitizeOutput(input))
+            }
             create(messageId, input)
-            println("Wrapping plain message")
+
           case IntepretableMessage(input) if isCreate(message) =>
             create(messageId, input)
           case IntepretableMessage(input) if isUpdateOfCommand(message, messageId) =>
@@ -148,7 +149,7 @@ case class GitterBot(cache: InterpretersCache) {
 
   def start(): Unit = {
     faye.connect(() => {
-      println("connected")
+      println(s"connected as ${rest.getCurrentUser.displayName}")
 
       roomsToJoin
         .map(rest.searchRooms(_, 1))
