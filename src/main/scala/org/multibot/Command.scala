@@ -18,6 +18,7 @@ object PlainInterpretableMessage {
     Option(input)
       .filter(_.startsWith("! "))
       .filter(s => Sanitizer.sanitizeInput(s) == s)
+      .map(_.drop(2))
 }
 
 /**
