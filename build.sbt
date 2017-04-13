@@ -15,19 +15,19 @@ mainClass in Compile := Some("org.multibot.Multibottest")
 updateOptions := updateOptions.value.withCachedResolution(true).withLatestSnapshots(false)
 
 publishArtifact in(Compile, packageDoc) := false
-resolvers += Resolver.bintrayIvyRepo("scalameta", "maven")
+resolvers += Resolver.bintrayRepo("scalameta", "maven")
 resolvers += Resolver.jcenterRepo
 
 herokuAppName in Compile := "metabot1"
 
 enablePlugins(JavaAppPackaging)
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.2"
 
 dependencyOverrides += "com.squareup.okio" % "okio" % "1.11.0"
 
-libraryDependencies += "org.scalameta" %% "scalameta" % "1.6.0-654"
-libraryDependencies += "org.scalameta" %% "contrib" % "1.6.0-654"
+libraryDependencies += "org.scalameta" %% "scalameta" % "1.7.0"
+libraryDependencies += "org.scalameta" %% "contrib" % "1.7.0"
 
 libraryDependencies ++= Seq(
   "com.github.amatkivskiy" % "gitter.sdk.async" % "1.6.0",
