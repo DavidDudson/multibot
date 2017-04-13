@@ -22,7 +22,7 @@ assemblyJarName in assembly := "metabot.jar"
 
 herokuAppName in Compile := "metabot1"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.1"
 
 dependencyOverrides += "com.squareup.okio" % "okio" % "1.11.0"
 
