@@ -1,7 +1,7 @@
 package org.multibot
 
 object Multibottest extends App {
-  val roomsToJoin: List[String] = "MetaElysium/MetabotTestRoom" :: "OlegYch/multibot" :: Nil
+  val roomsToJoin: List[String] = "MetaElysium/MetabotTestRoom" :: "scalameta/scalameta" :: Nil
   val cache = InterpretersCache(roomsToJoin)
   val gitterPass =
     Option(System getenv "MULTIBOT_GITTER_PASS")
