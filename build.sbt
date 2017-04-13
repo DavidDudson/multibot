@@ -18,9 +18,9 @@ publishArtifact in(Compile, packageDoc) := false
 resolvers += Resolver.bintrayRepo("scalameta", "maven")
 resolvers += Resolver.jcenterRepo
 
-herokuAppName in Compile := "metabot1"
+assemblyJarName in assembly := "metabot.jar"
 
-enablePlugins(JavaAppPackaging)
+herokuAppName in Compile := "metabot1"
 
 scalaVersion := "2.12.2"
 

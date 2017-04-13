@@ -1,10 +1,12 @@
 language: scala
 scala:
-- 2.12.1
+  - 2.12.1
 jdk:
   - oraclejdk8
+
 deploy:
   provider: heroku
   app: metabot1
+  cleanup: false
   api_key:
     secure: frZXvxOFnAggoiDoPQsUV4tnQOxhSwQeOymNHUqHr5sI/FpwM4KGl9zq8MdGcBay3iGRuvWbOztJuDi2j439AYThcDaZlZZVlI7c/FJfy+skCikTKCJYKjChXjJM8sn4e0s/T7s/1qbD25MQfxdF6/43KUrsAazSf8oarwdekWxN+AvcnoJ5jvfeBE2L3gOgHjuh/CrBUXljH7wEZMqOe0Y9bEnYu7okM5vAvevWeKMtImcHsj7j5MsFJCMIjadT5+2GBJM+nyPH2b54SazZG/o7v/R0ERcKr5SJ67JPh/uaw9s6awW4w5gRZObDyN2NntN8Dx7XYxC4vnCGKOvUkYknpvvWLpSbWQ3/6L08u23Io13C7SFz5IGBf7I64EAaUYRyS4udeG2OLFPlq20iWuSXTIBI1jceDLQNESHW4SgHmmaS2eLtLHObmR55Z+hZzaDOKxg4DHdBTs/O6JSVxu43qTeBhlkhswZ2kE7OncNOGRpz3mZcO+AuqKgvri+Z2uQFgistxnbkeBjWsBBWYYXLceQfCn3GJgX8CYd66Kn6M9rwJ3ztXyZuoo1qS4D1NM7stYNhyGdzdVd9doo2HlxxLD97NGDIs36zAHdT9mWJhmxLvd0ukGw+DRLE5XfkrSHCx3FPV6rVULz71P16PlE+UQQA5atLj2rFeD1sLF8=
