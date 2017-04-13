@@ -24,6 +24,8 @@ herokuAppName in Compile := "metabot1"
 
 scalaVersion := "2.12.1"
 
+herokuFatJar in Compile := Some((assemblyOutputPath in assembly).value)
+
 dependencyOverrides += "com.squareup.okio" % "okio" % "1.11.0"
 
 libraryDependencies += "org.scalameta" %% "scalameta" % "1.7.0"
