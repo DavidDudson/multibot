@@ -17,8 +17,7 @@ updateOptions := updateOptions.value.withCachedResolution(true).withLatestSnapsh
 publishArtifact in(Compile, packageDoc) := false
 resolvers += Resolver.bintrayRepo("scalameta", "maven")
 resolvers += Resolver.jcenterRepo
-
-assemblyJarName in assembly := "metabot.jar"
+resolvers += Resolver.typesafeRepo("release")
 
 herokuAppName in Compile := "metabot1"
 
@@ -26,7 +25,7 @@ scalaVersion := "2.12.1"
 
 herokuFatJar in Compile := Some((assemblyOutputPath in assembly).value)
 
-TaskKey[Unit]("stage") := herokuFatJar
+TaskKey[Unit]("stage") := compile
 
 dependencyOverrides += "com.squareup.okio" % "okio" % "1.11.0"
 

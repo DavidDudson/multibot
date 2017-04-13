@@ -1,2 +1,3 @@
-/project
-/src
+/project/target
+/project/project/target
+/target
