@@ -35,7 +35,7 @@ case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin
   val faye: AsyncGitterFayeClient = new AsyncGitterFayeClientBuilder()
     .withAccountToken(accountToken)
     .withFailListener(println)
-    .withOnDisconnected(() => println("disconnect"))
+    .withOnDisconnected(() => start)
     .withOkHttpClient(new OkHttpClient())
     .build()
 
@@ -147,7 +147,7 @@ case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin
     }
   }
 
-  def start(): Unit = {
+  def start: Unit = {
     faye.connect(() => {
       println(s"connected as ${rest.getCurrentUser.displayName}")
 
