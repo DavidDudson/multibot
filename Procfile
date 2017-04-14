@@ -1,1 +1,1 @@
-worker: java -jar target/multibot.jar
+worker: java -jar target/scala-2.12/metabot.jar

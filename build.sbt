@@ -19,6 +19,8 @@ resolvers += Resolver.bintrayRepo("scalameta", "maven")
 resolvers += Resolver.jcenterRepo
 resolvers += Resolver.typesafeRepo("release")
 
+assemblyJarName in assembly := "metabot.jar"
+
 herokuAppName in Compile := "metabot1"
 
 scalaVersion := "2.12.1"
