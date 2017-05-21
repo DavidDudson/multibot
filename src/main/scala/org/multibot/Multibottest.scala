@@ -6,5 +6,5 @@ object Multibottest extends App {
   val gitterPass =
     Option(System getenv "MULTIBOT_GITTER_PASS")
     .getOrElse("this isn't a password")
-  GitterBot(cache, gitterPass, roomsToJoin).start
+  GitterBot(cache, gitterPass, roomsToJoin).start()
 }
