@@ -63,6 +63,7 @@ case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin
             updateIncomingMessage(messageId, input)
             create(messageId, input)
           case IntepretableMessage(input) if isCreate(message) =>
+            updateIncomingMessage(messageId, input)
             create(messageId, input)
           case IntepretableMessage(input) if isUpdateOfCommand(message, messageId) =>
             update(messageId, input)
