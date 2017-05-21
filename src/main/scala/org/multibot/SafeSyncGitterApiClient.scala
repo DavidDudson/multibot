@@ -190,7 +190,7 @@ class SafeSyncGitterApiClient(api: SyncGitterApi) {
 }
 
 object SafeSyncGitterApiClient {
-  class Builder extends GitterApiBuilder[SafeSyncGitterApiClient.Builder, SyncGitterApiClient] {
+  class Builder extends GitterApiBuilder[SafeSyncGitterApiClient.Builder, SafeSyncGitterApiClient] {
     override def build: SafeSyncGitterApiClient = {
       prepareDefaultBuilderConfig()
       val gson: Gson = new GsonBuilder().registerTypeAdapter(classOf[UserResponse], new UserJsonDeserializer).create

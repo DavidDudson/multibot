@@ -197,6 +197,7 @@ case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin
 
   def restRecovery: PartialFunction[Throwable, Unit] = {
     case e =>
+      faye.disconnect()
       LOGGER.warn("rest error", e)
       start()
   }
