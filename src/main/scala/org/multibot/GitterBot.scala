@@ -17,6 +17,9 @@ import scala.util.Try
 case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin: List[String]) {
 
   private final val LOGGER = LoggerFactory.getLogger(GitterBot.getClass)
+  var debugMode: Boolean = false
+
+  var currentUserId: String = ""
 
   /**
     * Input => Output id cache
@@ -50,15 +53,32 @@ case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin
       override def onFailed(channel: String, ex: Exception): Unit =
         LOGGER.warn(s"subscribeFailed to $ex")
 
-      def isMessageIdInCache(id: String): Boolean =
-        recentMessageIdCache.getIfPresent(id) != null
+      def isMessageIdInCache(messageId: String): Boolean =
+        recentMessageIdCache.getIfPresent(messageId) != null
 
       @Override
       def onMessage(channel: String, message: MessageEvent) {
+        // We must ignore all messages from the bot
+        // Also, apparently the event can be null?
+        val user = message.message.fromUser
+        Option(user).foreach { u =>
+          if (!currentUserId.contains(u.id)) {
+            time("processing time", () => processMessage(message))
+          }
+        }
+      }
+
+      def processMessage(message: MessageEvent): Unit = {
         val messageId = message.message.id
         message.message.text match {
           case "ping" =>
             rest.sendMessage(id, "pong")
+          case "debug on" =>
+            debugMode = true
+            rest.sendMessage(id, "debug enabled")
+          case "debug off" =>
+            debugMode = false
+            rest.sendMessage(id, "debug disabled")
           case PlainInterpretableMessage(input) =>
             updateIncomingMessage(messageId, input)
             create(messageId, input)
@@ -74,6 +94,18 @@ case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin
           case _ if isRemove(message) =>
             delete(messageId)
           case _ =>
+        }
+      }
+
+      def time(part: String, f: () => Unit): Unit = {
+        if (debugMode) {
+          val start = System.nanoTime()
+          f()
+          val end = System.nanoTime()
+          val total = (end - start) / 1e6
+          rest.sendMessage(id, s"$part took $total ms")
+        } else {
+          f()
         }
       }
 
@@ -129,7 +161,7 @@ case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin
     })
 
     def interpret(s: String): String = {
-      cache.scalaInterpreter(id) { (si, cout) =>
+      val out = cache.scalaInterpreter(id) { (si, cout) =>
         var out = ""
         import scala.tools.nsc.interpreter.Results._
 
@@ -147,6 +179,21 @@ case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin
 
         out
       }
+
+      if (debugMode) {
+        s"""=======================================
+           |Input:
+           |
+           |$s
+           |
+           |Output:
+           |
+           |$out
+           |=======================================
+         """.stripMargin
+      }
+
+      out
     }
 
     def create(messageId: String, input: String) = {
@@ -157,20 +204,19 @@ case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin
     }
 
     def delete(messageId: String) = {
-      val oldId = recentMessageIdCache.getIfPresent(messageId)
-      Option(oldId)
-        .foreach {
-          rest.updateMessage(id, oldId, "")
-          recentMessageIdCache.invalidate
+      Option(recentMessageIdCache.getIfPresent(messageId))
+        .foreach { i =>
+          rest.updateMessage(id, i, "")
+          recentMessageIdCache.invalidate(i)
         }
     }
 
     def update(messageId: String, input: String) = {
-      val oldId = recentMessageIdCache.getIfPresent(messageId)
-      val reponse = rest.updateMessage(id, oldId, Sanitizer.sanitizeOutput(interpret(input)))
-      reponse.foreach { r =>
-        recentMessageIdCache.put(messageId, r.id)
-      }
+      Option(recentMessageIdCache.getIfPresent(messageId))
+        .flatMap(rest.updateMessage(id, _, Sanitizer.sanitizeOutput(interpret(input))).toOption)
+        .foreach { r =>
+          recentMessageIdCache.put(messageId, r.id)
+        }
     }
   }
 
@@ -178,6 +224,7 @@ case class GitterBot(cache: InterpretersCache, accountToken: String, roomsToJoin
     Try {
       faye.connect(() => {
         rest.getCurrentUser.map { u =>
+          currentUserId = u.id
           LOGGER.info(s"connected as ${u.displayName}")
         } getOrElse restRecovery
 
